@@ -132,7 +132,7 @@ class StreamingHTTPRedirectHandler(urllib.request.HTTPRedirectHandler):
                              )
             return urllib.request.Request(newurl,
                            headers=newheaders,
-                           origin_req_host=req.get_origin_req_host(),
+                           origin_req_host=req.origin_req_host,
                            unverifiable=True)
         else:
             raise urllib.request.HTTPError(req.get_full_url(), code, msg, headers, fp)
@@ -152,8 +152,8 @@ class StreamingHTTPHandler(urllib.request.HTTPHandler):
         if we're using an interable value"""
         # Make sure that if we're using an iterable object as the request
         # body, that we've also specified Content-Length
-        if req.has_data():
-            data = req.get_data()
+        data = req.data
+        if data:
             if hasattr(data, 'read') or hasattr(data, '__next__'):
                 if not req.has_header('Content-length'):
                     raise ValueError(
@@ -178,8 +178,8 @@ if hasattr(http.client, 'HTTPSConnection'):
         def https_request(self, req):
             # Make sure that if we're using an iterable object as the request
             # body, that we've also specified Content-Length
-            if req.has_data():
-                data = req.get_data()
+            data = req.data
+            if data:
                 if hasattr(data, 'read') or hasattr(data, '__next__'):
                     if not req.has_header('Content-length'):
                         raise ValueError(
